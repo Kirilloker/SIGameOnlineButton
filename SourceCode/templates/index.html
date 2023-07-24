@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Ответить</title>
+    <style>
+      body {
+        background-color: #ededed;
+      }
+      .container {
+        text-align: center;
+        height: 100vh; /* Set the container's height to occupy the entire viewport height */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+      input[type="text"] {
+        width: 80%;
+        height: 15%;
+        font-size: 60px;
+      }
+      .btn {
+        background-color: red;
+        color: white;
+        font-size: 100px;
+        padding: 20px 50px;
+        border: none;
+        cursor: pointer;
+        border-radius: 5px;
+        margin-top: auto; /* Push the button to the bottom of the container */
+        width: 80%; /* Set the button's width to 100% to fill the container horizontally */
+        flex-grow: 1; /* Allow the button to grow and occupy remaining vertical space */
+      }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const messageContainer = document.getElementById("message");
+        const button = document.getElementById("button");
+
+        button.addEventListener("click", function () {
+          const nameInput = document.getElementById("name");
+          const name = nameInput.value;
+
+          fetch("/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ name: name }),
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              messageContainer.innerText = data.message;
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="Введите имя"
+        required
+      />
+      <button class="btn" id="button" type="button">Ответить</button>
+      <h2 id="message">{{ message }}</h2>
+    </div>
+  </body>
+</html>
