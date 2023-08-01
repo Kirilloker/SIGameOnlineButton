@@ -3,6 +3,10 @@ import socket
 import logging
 from flask import Flask, render_template, request
 import threading
+from pygame import mixer
+
+path_sound = "./SIGameOnlineButton/SourceCode/sound.mp3"
+
 
 # Создаем экземпляр приложения Flask
 app = Flask(__name__)
@@ -106,22 +110,35 @@ def index():
             message = f"Кнопку нажал: {name}"
         else:
             message = "Кнопку нажал: Неизвестный"
+        reset_text(message)
     else:
         message = ""
     print(message)
-    reset_text(message)
+    
     return render_template('index.html', message=message)
 # -------------------------------------------------------------
 
 
 import tkinter as tk
 
+def play_sound():
+    mixer.init()
+    mixer.music.load(path_sound)
+    mixer.music.play()
+    input()
+
 def change_text():
     label.config(text="Ожидание")
+    label.config(bg="gray")
 
 def reset_text(new_text):
     if label.cget("text") == "Ожидание":
-      label.config(text=new_text)
+        label.config(text=new_text)
+        label.config(bg="lime")
+        # Вызов звука в отдельном потоке, потому что иначе он блочит основной поток
+        sound_thread = threading.Thread(target=play_sound, args=())
+        sound_thread.start()
+        sound_thread.join(5)
 
 def reset_text_ip(new_text):
     ip_label.config(text=new_text)
@@ -152,10 +169,10 @@ def start_server():
     reset_text_ip(ip_address + ":" + port)
     app.run(host=ip_address, port=port)
 
+
 if __name__ == '__main__':
     server_thread = threading.Thread(target=start_server)
     server_thread.start()
-
     root.mainloop()
     server_thread.join()
     
